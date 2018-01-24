@@ -1,0 +1,19 @@
+{
+  "name": "bombadier",
+  "version": "1.0.0",
+  "description": "Node program to process BOM netcdf data files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "NetCDF",
+    "Weather",
+    "Prediciton"
+  ],
+  "author": "Tim Cross",
+  "license": "ISC",
+  "dependencies": {
+    "netcdf4": "^0.3.0"
+  }
+}
