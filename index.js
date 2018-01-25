@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/* jshint esversion:/* jshint esver 6, node: true */
+/* jshint esversion: 6, node: true */
+
 "use strict";
 
 function usage(errMsg) {

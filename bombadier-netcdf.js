@@ -1,36 +1,37 @@
-const netcdf4 = require('netcdf4');
+/* jshint esversion: 6, node: true */
+
+const netcdf4 = require("netcdf4");
 
 function getPrimaryVariableName(ncObject) {
-  var varName;
-  
+  var name;
+
   for (let v in ncObject.root.variables) {
     if (v !== "lat" && v !== "lon" && v !== "time") {
-      varName = v;
+      name = v;
     }
   }
-  return varName;
+  return name;
 }
 
 function getBaseDate(str) {
   var re = /(\d+-\d+-\d+ \d+:\d+:\d+)$/;
-  var dateStr = str.match(re)[0] + 'Z';
+  var dateStr = str.match(re)[0] + "Z";
 
   return new Date(dateStr);
 }
 
 exports.netcdfInit = function netcdfInit(ncFile) {
   var fileName = ncFile;
-  var nc = new netcdf4.File(ncFile, 'r');
+  var nc = new netcdf4.File(ncFile, "r");
   var varName = getPrimaryVariableName(nc);
   var targetVariable = nc.root.variables[varName];
   var units = targetVariable.attributes.units.value;
-  var timeSize = nc.root.variables["time"].dimensions[0].length;
-  var baseDate = getBaseDate(nc.root.variables["time"].attributes.units.value);
-  var latitudeSize = nc.root.variables["lat"].dimensions[0].length;
-  var longitudeSize = nc.root.variables["lon"].dimensions[0].length;
+  var timeSize = nc.root.variables.time.dimensions[0].length;
+  var baseDate = getBaseDate(nc.root.variables.time.attributes.units.value);
+  var latitudeSize = nc.root.variables.lat.dimensions[0].length;
+  var longitudeSize = nc.root.variables.lon.dimensions[0].length;
   var fillValue = targetVariable.attributes.missing_value.value;
 
-  
   function readLonDimension(timeIndex, latitudeIndex) {
     var row = targetVariable.readSlice(timeIndex, 1, latitudeIndex, 1, 0, longitudeSize);
     return row.map(function(v) {
@@ -66,7 +67,5 @@ exports.netcdfInit = function netcdfInit(ncFile) {
       nc.close(); 
     }
   };
-}
-
-
+};
 
