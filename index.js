@@ -37,6 +37,10 @@ var nc = bn.netcdfInit(inFile);
 
 console.log(nc.metaInfo());
 
+console.log("Raw Times: ", nc.rawTimes);
+
+console.log("Valid Times: ", nc.validTimes);
+
 var grid = nc.readGrid(0);
 
 console.log("Grid Size: " + grid.length + " by " + grid[0].length);
