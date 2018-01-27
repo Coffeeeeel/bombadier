@@ -15,12 +15,6 @@ where <file> is the path to an NetCDF input file
   process.exit(1);
 }
 
-function roundValue(precision, v) {
-  var factor = Math.pow(10, precision);
-
-  return Math.round(v * factor) / factor;
-}
-
 const fs = require('fs');
 
 var inFile = process.argv[2];
@@ -52,5 +46,8 @@ console.log("Grid Size: " + grid.length + " by " + grid[0].length);
 //     }
 //   }
 // }
+
+
+
 
 nc.close();

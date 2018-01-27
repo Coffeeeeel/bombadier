@@ -1,6 +1,7 @@
 /* jshint esversion: 6, node: true */
 
 const moment = require("moment");
+const {roundValue} = require("./utils");
 
 // FIXME: module doe snot provide any documentation on 
 // exception handling, so need to 'break' things and determine
@@ -83,9 +84,21 @@ function getPrimaryVar(ncObject) {
   };
 }
 
+// need to round and put into a new array. Cannot just
+// use map as it will create a new array of the same tyupe
+// which won't fix our rouding issue
+function getRoundedValues(data) {
+  var newValues = [];
+
+  for (let [idx, value] of data.values.entries()) {
+    newValues[idx] = roundValue(2, value);
+  }
+  return newValues;
+}
+
 // setup a netcdf object. May want to open multiple objects
 // at same time, so keep value scope local to each object instance
-exports.netcdfInit = function netcdfInit(ncFile) {
+exports.netcdfInit = function(ncFile) {
   var fileName = ncFile;
   var nc = new netcdf4.File(ncFile, "r");
   var primary = getPrimaryVar(nc);
@@ -104,7 +117,7 @@ exports.netcdfInit = function netcdfInit(ncFile) {
   }
 
   return {
-    metaInfo : function metaInfo() {
+    metaInfo : function () {
       return {
         fileName : fileName,
         primaryVar :  primary.name,
@@ -116,7 +129,7 @@ exports.netcdfInit = function netcdfInit(ncFile) {
         fillValue : primary.fillValue
       };
     },
-    readGrid : function readGrid(timeIndex) {
+    readGrid : function (timeIndex) {
       var grid = [];
 
       for (let latitude = 0; latitude < latitudeData.size; latitude++) {
@@ -124,10 +137,16 @@ exports.netcdfInit = function netcdfInit(ncFile) {
       }
       return grid;
     },
+    getLatitudes : function () {
+      return getRoundedValues(latitudeData);
+    },
+    getLongitudes : function () {
+      return getRoundedValues(longitudeData);
+    },
     rawTimes : timeData.values,
     validTimes : timeData.validTimes,
-    latitudes : latitudeData.values,
-    longitudes : longitudeData.values,
+    rawLatitudes : latitudeData.values,
+    rawLongitudes : longitudeData.values,
     close : function () {
       nc.close(); 
     }
