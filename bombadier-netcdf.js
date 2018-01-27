@@ -1,8 +1,14 @@
 /* jshint esversion: 6, node: true */
 
 const moment = require("moment");
+
+// FIXME: module doe snot provide any documentation on 
+// exception handling, so need to 'break' things and determine
+// what exceptions we need to handle etc.
 const netcdf4 = require("netcdf4");
 
+// Assumes only 1 multidimensional variable and assumes
+// other dimensions are time, lat and lon. 
 function getPrimaryVariableName(ncObject) {
   var name;
 
@@ -14,6 +20,7 @@ function getPrimaryVariableName(ncObject) {
   return name;
 }
 
+// Base date used for offset in time dimension 
 function getBaseDate(str) {
   var re = /(\d+-\d+-\d+) \d+:\d+:\d+$/;
   var dateStr = str.match(re)[1];
@@ -21,6 +28,7 @@ function getBaseDate(str) {
   return moment(dateStr);
 }
 
+// Gather relevant info about time dimension 
 function getTimeDimension(ncObject) {
   var timeVar = ncObject.root.variables.time;
   var size = timeVar.dimensions[0].length;
@@ -28,6 +36,9 @@ function getTimeDimension(ncObject) {
   var values = timeVar.readSlice(0, size);
   var validTimes = [];
 
+  // I hate Dates, Timezones and bloody daylight saving!
+  // FIXME: BOM netcdf files lack consistent/clear timezone
+  // information. Need to verify. 
   values.forEach(function (d) {
     validTimes.push(moment(baseDate).add(Math.floor(d), "days")
                     .add((d % 1) * 24, "hours"));
@@ -41,6 +52,7 @@ function getTimeDimension(ncObject) {
   };
 }
 
+// get relevant info on lat/lon dimensions 
 function getDimensionData(ncObject, dim) {
   var dimVar = ncObject.root.variables[dim];
   var size = dimVar.dimensions[0].length;
@@ -52,6 +64,11 @@ function getDimensionData(ncObject, dim) {
   };
 }
 
+// get relavent info on primary variable of interest
+// this could be pr, rsds, tasmax, tasmin, vprp (9am/3pm), 
+// or wind_speed. 
+// Don't want to use filename to determine primary variable
+// as BOM can/does change filename format, so too brittle.
 function getPrimaryVar(ncObject) {
   var name = getPrimaryVariableName(ncObject);
   var target = ncObject.root.variables[name];
@@ -66,6 +83,8 @@ function getPrimaryVar(ncObject) {
   };
 }
 
+// setup a netcdf object. May want to open multiple objects
+// at same time, so keep value scope local to each object instance
 exports.netcdfInit = function netcdfInit(ncFile) {
   var fileName = ncFile;
   var nc = new netcdf4.File(ncFile, "r");
